@@ -20,6 +20,9 @@ var bot = [
     type: 'play_land',
     strategy: 'random'
   }, {
+    type: 'log_stats',
+    metric: 'count_available_mana'
+  }, {
     type: 'play_permanent',
     strategy: 'random'
   }
@@ -39,17 +42,21 @@ _.times(1, function(i) {
     first: true,
     turns: 4
   })
-  console.log('=== Results ===')
+  console.log("\n" + '=== Results ===')
   console.log('Battlefield:')
   printCards(results.battlefield)
   console.log('Hand:')
   printCards(results.hand)
-  console.log('Game log:')
+  console.log("\n" + 'Game log:')
   _.each(results.log, function(log) {
     if (log.payload) {
       console.log(log.message, log.payload)
     } else {
       console.log(log.message)
     }
+  })
+  console.log("\n" + 'Metrics:')
+  _.each(results.metrics, function(m) {
+    console.log(m)
   })
 })

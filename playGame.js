@@ -14,7 +14,8 @@ function initGame(deck) {
     library: _.shuffle(deck),
     hand: [],
     graveyard: [],
-    log: []
+    log: [],
+    metrics: {}
   }
   log(game, 'Shuffle')
   draw(game, 7)
@@ -38,7 +39,7 @@ function playLand(game, strategy) {
   switch (strategy) {
     case 'random':
       playRandomLand(game)
-      break;
+      break
     default:
       console.error('Unnknown playLand strategy', strategy)
       process.exit()
@@ -49,7 +50,7 @@ function playPermanent(game, strategy) {
   switch (strategy) {
     case 'random':
       playRandomPermanent(game)
-      break;
+      break
     default:
       console.error('Unnknown playPermanent strategy', strategy)
       process.exit()
@@ -71,7 +72,7 @@ function playRandomLand(game) {
   game.hand = _.concat(game.hand, lands)
 }
 
-function isCastable(game, card) {
+function getAvailableMana(game) {
   var availableMana = {
     r: 0,
     g: 0,
@@ -86,24 +87,29 @@ function isCastable(game, card) {
       switch (permanent.name) {
         case 'Mountain':
           availableMana.r++
-          break;
+          break
         case 'Forest':
           availableMana.g++
-          break;
+          break
         case 'Island':
           availableMana.u++
-          break;
+          break
         case 'Swamp':
           availableMana.b++
-          break;
+          break
         case 'Plains':
           availableMana.w++
-          break;
+          break
         default:
           console.error('Unknown basic land', permanent)
       }
     }
   })
+  return availableMana
+}
+
+function isCastable(game, card) {
+  var availableMana = getAvailableMana(game)
   var re = /\{([\w\d]+)\}/g,
       manaCostMatch,
       manaCost = []
@@ -173,17 +179,43 @@ function discard(game, n) {
   }))
 }
 
+function addStats(game, metric) {
+  switch (metric) {
+    case 'count_available_mana':
+      countAvailableMana(game)
+      break
+    default:
+      console.error('Unnknown log metric', metric)
+      process.exit()
+  }
+}
+
+function countAvailableMana(game) {
+  if (!game.metrics.availableMana) {
+    game.metrics.availableMana = []
+  }
+  game.metrics.availableMana[game.turn - 1] = _.map(getAvailableMana(game), function(v, k) {
+    return {
+      name: k.toUpperCase(),
+      value: v
+    }
+  })
+}
+
 function runCommand(game, command, results) {
   switch (command.type) {
     case 'draw':
       draw(game)
-      break;
+      break
     case 'play_land':
       playLand(game, command.strategy)
-      break;
+      break
     case 'play_permanent':
       playPermanent(game, command.strategy)
-      break;
+      break
+    case 'log_stats':
+      addStats(game, command.metric)
+      break
     default:
       console.error('Unnknown command', command)
       process.exit()
@@ -194,9 +226,10 @@ module.exports = function(options) {
   var game = initGame(options.deck)
   var results = {}
   _.times(options.turns, function(turn) {
-    log(game, 'New turn', turn + 1)
+    game.turn = turn + 1
+    log(game, 'Turn', game.turn)
     if (options.first && turn === 0) {
-      log(game, 'Skip draw step', turn + 1)
+      log(game, 'Skip draw step', game.turn)
     } else {
       draw(game)
     }
@@ -211,6 +244,7 @@ module.exports = function(options) {
     library: game.library.length,
     hand: game.hand,
     battlefield: game.battlefield,
-    log: game.log
+    log: game.log,
+    metrics: game.metrics
   }
 }
