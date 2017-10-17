@@ -1,5 +1,5 @@
-var cardsRepo = require('./XLN.json').cards
-var _ = require('./lodash.min.js')
+var cardsRepo = require('../lib/XLN.json').cards
+var _ = require('../lib/lodash.min.js')
 
 module.exports = function(deck) {
   var cards = []

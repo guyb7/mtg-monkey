@@ -1,6 +1,6 @@
-var _ = require('./lodash.min.js')
-var buildDeck = require('./buildDeck.js')
-var playGame = require('./playGame.js')
+var buildDeck = require('./modules/buildDeck')
+var playGame = require('./modules/playGame')
+var _ = require('./lib/lodash.min.js')
 
 var deck = [
   {
