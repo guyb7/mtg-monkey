@@ -41,4 +41,12 @@ _.times(1, function(i) {
   printCards(results.battlefield)
   console.log('Hand:')
   printCards(results.hand)
+  console.log('Game log:')
+  _.each(results.log, function(log) {
+    if (log.payload) {
+      console.log(log.message, log.payload)
+    } else {
+      console.log(log.message)
+    }
+  })
 })

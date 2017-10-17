@@ -1,14 +1,22 @@
 var _ = require('./lodash.min.js')
 
+function log(game, message, payload) {
+  game.log.push({
+    message: message,
+    payload: payload
+  })
+}
+
 function initGame(deck) {
-  console.log('Shuffle')
   var game = {
     turn: 1,
     battlefield: [],
     library: _.shuffle(deck),
     hand: [],
-    graveyard: []
+    graveyard: [],
+    log: []
   }
+  log(game, 'Shuffle')
   draw(game, 7)
   return game
 }
@@ -23,7 +31,7 @@ function draw(game, n) {
     drawnCards.push(card.name)
     game.hand.push(card)
   })
-  console.log('Draw ' + n + ': ' + drawnCards.join(', '))
+  log(game, 'Draw ' + n, drawnCards)
 }
 
 function playLand(game, strategy) {
@@ -42,12 +50,12 @@ function playRandomLand(game) {
     return _.indexOf(card.types, 'Land') > -1
   })
   if (lands.length === 0) {
-    console.log('No lands to play')
+    log(game, 'No lands to play')
     return
   }
   lands = _.shuffle(lands)
   var randomLand = lands.pop()
-  console.log('Play Random Land: ' + randomLand.name)
+  log(game, 'Play random land', randomLand.name)
   game.battlefield.push(randomLand)
   game.hand = _.concat(game.hand, lands)
 }
@@ -64,9 +72,9 @@ function discard(game, n) {
   _.times(n, function() {
     discards.push(game.hand.pop())
   })
-  console.log('Discarding at random: ' + discards.map(function(c) {
+  log(game, 'Discarding at random', discards.map(function(c) {
     return c.name
-  }).join(', '))
+  }))
 }
 
 function runCommand(game, command, results) {
@@ -87,9 +95,9 @@ module.exports = function(options) {
   var game = initGame(options.deck)
   var results = {}
   _.times(options.turns, function(turn) {
-    console.log('= Turn ' + (turn + 1))
+    log(game, 'New turn', turn + 1)
     if (options.first && turn === 0) {
-      console.log('Skip draw step')
+      log(game, 'Skip draw step', turn + 1)
     } else {
       draw(game)
     }
@@ -104,5 +112,6 @@ module.exports = function(options) {
     library: game.library.length,
     hand: game.hand,
     battlefield: game.battlefield,
+    log: game.log
   }
 }
