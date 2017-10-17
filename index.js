@@ -19,6 +19,9 @@ var bot = [
   {
     type: 'play_land',
     strategy: 'random'
+  }, {
+    type: 'play_permanent',
+    strategy: 'random'
   }
 ]
 

@@ -45,6 +45,17 @@ function playLand(game, strategy) {
   }
 }
 
+function playPermanent(game, strategy) {
+  switch (strategy) {
+    case 'random':
+      playRandomPermanent(game)
+      break;
+    default:
+      console.error('Unnknown playPermanent strategy', strategy)
+      process.exit()
+  }
+}
+
 function playRandomLand(game) {
   var lands = _.remove(game.hand, function(card) {
     return _.indexOf(card.types, 'Land') > -1
@@ -58,6 +69,91 @@ function playRandomLand(game) {
   log(game, 'Play random land', randomLand.name)
   game.battlefield.push(randomLand)
   game.hand = _.concat(game.hand, lands)
+}
+
+function isCastable(game, card) {
+  var availableMana = {
+    r: 0,
+    g: 0,
+    u: 0,
+    b: 0,
+    w: 0,
+    c: 0,
+    a: 0
+  }
+  _.each(game.battlefield, function(permanent) {
+    if (_.has(permanent, 'supertypes') && _.indexOf(permanent.supertypes, 'Basic') > -1 && _.indexOf(permanent.types, 'Land') > -1) {
+      switch (permanent.name) {
+        case 'Mountain':
+          availableMana.r++
+          break;
+        case 'Forest':
+          availableMana.g++
+          break;
+        case 'Island':
+          availableMana.u++
+          break;
+        case 'Swamp':
+          availableMana.b++
+          break;
+        case 'Plains':
+          availableMana.w++
+          break;
+        default:
+          console.error('Unknown basic land', permanent)
+      }
+    }
+  })
+  var re = /\{([\w\d]+)\}/g,
+      manaCostMatch,
+      manaCost = []
+  while ((manaCostMatch = re.exec(card.manaCost)) !== null) {
+    manaCost.push(manaCostMatch[1])
+  }
+  var castable = true
+  _.each(manaCost, function(cost) {
+    cost = cost.toLowerCase()
+    if (!isNaN(Number(cost))) {
+      var totalAvailableMana = _.reduce(availableMana, function(total, v, k) {
+        return total + v
+      }, 0)
+      if (Number(cost) < totalAvailableMana) {
+        castable = false
+        return false
+      }
+    } else if (availableMana[cost] > 0) {
+      availableMana[cost]--
+    } else {
+      castable = false
+      return false
+    }
+  })
+  return castable
+}
+
+function playRandomPermanent(game) {
+  var playablePermanents = _.remove(game.hand, function(card) {
+    if (!isCastable(game, card)) {
+      return false
+    }
+    if (_.indexOf(card.types, 'Creature') > -1) {
+      return true
+    } else if (_.indexOf(card.types, 'Enchantment') > -1) {
+      return true
+    } else if (_.indexOf(card.types, 'Artifact') > -1) {
+      return true
+    }
+    return false
+  })
+  if (playablePermanents.length === 0) {
+    log(game, 'No playable permanents to play')
+    return
+  }
+  playablePermanents = _.shuffle(playablePermanents)
+  var randomPermanent = playablePermanents.pop()
+  log(game, 'Play random permanent', randomPermanent.name)
+  game.battlefield.push(randomPermanent)
+  game.hand = _.concat(game.hand, playablePermanents)
 }
 
 function checkToDiscard(game) {
@@ -85,6 +181,9 @@ function runCommand(game, command, results) {
     case 'play_land':
       playLand(game, command.strategy)
       break;
+    case 'play_permanent':
+      playPermanent(game, command.strategy)
+      break;
     default:
       console.error('Unnknown command', command)
       process.exit()
@@ -103,7 +202,7 @@ module.exports = function(options) {
     }
     var commands = _.clone(options.bot)
     while (commands.length > 0) {
-      var command = commands.pop()
+      var command = commands.shift()
       runCommand(game, command, results)
     }
     checkToDiscard(game)
