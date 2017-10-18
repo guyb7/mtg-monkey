@@ -3,13 +3,16 @@ var discard = require('./game/discard')
 var addStats = require('./game/metrics/addStats')
 var playLand = require('./game/playLand/')
 var playPermanent = require('./game/playPermanent/')
-var _ = require('../lib/lodash.min.js')
+
+var _clone = require('lodash/clone'),
+    _shuffle = require('lodash/shuffle'),
+    _times = require('lodash/times')
 
 function initGame(deck) {
   var game = {
     turn: 1,
     battlefield: [],
-    library: _.shuffle(deck),
+    library: _shuffle(deck),
     hand: [],
     graveyard: [],
     logs: [],
@@ -55,7 +58,7 @@ function runCommand(game, command, results) {
 module.exports = function(options) {
   var game = initGame(options.deck)
   var results = {}
-  _.times(options.turns, function(turn) {
+  _times(options.turns, function(turn) {
     game.turn = turn + 1
     game.log('Turn', game.turn)
     if (options.first && turn === 0) {
@@ -63,7 +66,7 @@ module.exports = function(options) {
     } else {
       draw(game)
     }
-    var commands = _.clone(options.bot)
+    var commands = _clone(options.bot)
     while (commands.length > 0) {
       var command = commands.shift()
       runCommand(game, command, results)

@@ -1,4 +1,6 @@
-var _ = require('../../../lib/lodash.min.js')
+var _each = require('lodash/each'),
+    _has = require('lodash/has'),
+    _indexOf = require('lodash/indexOf')
 
 module.exports = function getAvailableMana(game) {
   var availableMana = {
@@ -10,8 +12,8 @@ module.exports = function getAvailableMana(game) {
     c: 0,
     a: 0
   }
-  _.each(game.battlefield, function(permanent) {
-    if (_.has(permanent, 'supertypes') && _.indexOf(permanent.supertypes, 'Basic') > -1 && _.indexOf(permanent.types, 'Land') > -1) {
+  _each(game.battlefield, function(permanent) {
+    if (_has(permanent, 'supertypes') && _indexOf(permanent.supertypes, 'Basic') > -1 && _indexOf(permanent.types, 'Land') > -1) {
       switch (permanent.name) {
         case 'Mountain':
           availableMana.r++

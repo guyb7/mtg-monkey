@@ -1,16 +1,20 @@
 var isCastable = require('../utils/isCastable')
-var _ = require('../../../lib/lodash.min.js')
+
+var _concat = require('lodash/concat'),
+    _indexOf = require('lodash/indexOf'),
+    _remove = require('lodash/remove'),
+    _shuffle = require('lodash/shuffle')
 
 module.exports = function(game) {
-  var playablePermanents = _.remove(game.hand, function(card) {
+  var playablePermanents = _remove(game.hand, function(card) {
     if (!isCastable(game, card)) {
       return false
     }
-    if (_.indexOf(card.types, 'Creature') > -1) {
+    if (_indexOf(card.types, 'Creature') > -1) {
       return true
-    } else if (_.indexOf(card.types, 'Enchantment') > -1) {
+    } else if (_indexOf(card.types, 'Enchantment') > -1) {
       return true
-    } else if (_.indexOf(card.types, 'Artifact') > -1) {
+    } else if (_indexOf(card.types, 'Artifact') > -1) {
       return true
     }
     return false
@@ -19,9 +23,9 @@ module.exports = function(game) {
     game.log('No playable permanents to play')
     return
   }
-  playablePermanents = _.shuffle(playablePermanents)
+  playablePermanents = _shuffle(playablePermanents)
   var randomPermanent = playablePermanents.pop()
   game.log('Play random permanent', randomPermanent.name)
   game.battlefield.push(randomPermanent)
-  game.hand = _.concat(game.hand, playablePermanents)
+  game.hand = _concat(game.hand, playablePermanents)
 }

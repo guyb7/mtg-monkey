@@ -1,6 +1,10 @@
 var buildDeck = require('./modules/buildDeck')
 var playGame = require('./modules/playGame')
-var _ = require('./lib/lodash.min.js')
+
+var _clone = require('lodash/clone'),
+    _each = require('lodash/each'),
+    _reduce = require('lodash/reduce'),
+    _times = require('lodash/times')
 
 var deck = [
   {
@@ -29,16 +33,16 @@ var bot = [
 ]
 
 function printCards(cards) {
-  console.log(_.reduce(cards, function(cards, card) {
+  console.log(_reduce(cards, function(cards, card) {
     cards.push(card.name)
     return cards
   }, []))
 }
 
-_.times(1, function(i) {
+_times(1, function(i) {
   var results =  playGame({
     deck: buildDeck(deck),
-    bot: _.clone(bot),
+    bot: _clone(bot),
     first: true,
     turns: 4
   })
@@ -48,7 +52,7 @@ _.times(1, function(i) {
   console.log('Hand:')
   printCards(results.hand)
   console.log("\n" + 'Game log:')
-  _.each(results.log, function(log) {
+  _each(results.log, function(log) {
     if (log.payload) {
       console.log(log.message, log.payload)
     } else {
@@ -56,7 +60,7 @@ _.times(1, function(i) {
     }
   })
   console.log("\n" + 'Metrics:')
-  _.each(results.metrics, function(m) {
+  _each(results.metrics, function(m) {
     console.log(m)
   })
 })

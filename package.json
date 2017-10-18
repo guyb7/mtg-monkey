@@ -1,0 +1,11 @@
+{
+  "name": "mtg-monkey",
+  "version": "0.0.1",
+  "main": "index.js",
+  "repository": "git@github.com:guyb7/mtg-monkey.git",
+  "author": "Guy Brukhis <guy.br7@gmail.com>",
+  "license": "MIT",
+  "dependencies": {
+    "lodash": "^4.17.4"
+  }
+}

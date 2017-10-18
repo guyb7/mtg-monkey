@@ -1,5 +1,7 @@
 var getAvailableMana = require('./getAvailableMana')
-var _ = require('../../../lib/lodash.min.js')
+
+var _each = require('lodash/each'),
+    _reduce = require('lodash/reduce')
 
 module.exports = function(game, card) {
   var availableMana = getAvailableMana(game)
@@ -10,10 +12,10 @@ module.exports = function(game, card) {
     manaCost.push(manaCostMatch[1])
   }
   var castable = true
-  _.each(manaCost, function(cost) {
+  _each(manaCost, function(cost) {
     cost = cost.toLowerCase()
     if (!isNaN(Number(cost))) {
-      var totalAvailableMana = _.reduce(availableMana, function(total, v, k) {
+      var totalAvailableMana = _reduce(availableMana, function(total, v, k) {
         return total + v
       }, 0)
       if (Number(cost) < totalAvailableMana) {
