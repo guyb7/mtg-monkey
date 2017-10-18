@@ -1,12 +1,12 @@
-var buildDeck = require('./modules/buildDeck')
-var playGame = require('./modules/playGame')
+const buildDeck = require('./modules/buildDeck')
+const playGame = require('./modules/playGame')
+const averageResults = require('./modules/results/averageResults')
 
-var _clone = require('lodash/clone'),
-    _each = require('lodash/each'),
-    _reduce = require('lodash/reduce'),
-    _times = require('lodash/times')
+const Promise = require('bluebird'),
+      _clone = require('lodash/clone'),
+      _times = require('lodash/times')
 
-var deck = [
+const deck = [
   {
     name: 'Mountain',
     count: 12
@@ -19,7 +19,7 @@ var deck = [
   }
 ]
 
-var bot = [
+const bot = [
   {
     type: 'play_land',
     strategy: 'random'
@@ -32,35 +32,33 @@ var bot = [
   }
 ]
 
-function printCards(cards) {
-  console.log(_reduce(cards, function(cards, card) {
-    cards.push(card.name)
-    return cards
-  }, []))
+const run = async gameOptions => {
+  const games = []
+  _times(gameOptions.games, i => {
+    games.push(i)
+  })
+  const worker = gameNumber => playGame(gameOptions)
+  const gameQueue = Promise.map(games, worker, { concurrency: gameOptions.concurrency })
+  gameQueue.then(results => {
+    gameOptions.onSuccess(results)
+  })
+  .catch(e => {
+    gameOptions.onError(e)
+  })
 }
 
-_times(1, function(i) {
-  var results =  playGame({
-    deck: buildDeck(deck),
-    bot: _clone(bot),
-    first: true,
-    turns: 4
-  })
-  console.log("\n" + '=== Results ===')
-  console.log('Battlefield:')
-  printCards(results.battlefield)
-  console.log('Hand:')
-  printCards(results.hand)
-  console.log("\n" + 'Game log:')
-  _each(results.log, function(log) {
-    if (log.payload) {
-      console.log(log.message, log.payload)
-    } else {
-      console.log(log.message)
-    }
-  })
-  console.log("\n" + 'Metrics:')
-  _each(results.metrics, function(m) {
-    console.log(m)
-  })
+run({
+  deck: buildDeck(deck),
+  bot: _clone(bot),
+  first: true,
+  games: 20,
+  concurrency: 1,
+  turns: 4,
+  onError(e) {
+    console.error(e)
+    process.exit()
+  },
+  onSuccess(results) {
+    averageResults(results)
+  }
 })
