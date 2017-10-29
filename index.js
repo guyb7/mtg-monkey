@@ -22,13 +22,13 @@ const deck = [
 const bot = [
   {
     type: 'play_land',
-    strategy: 'random'
-  }, {
-    type: 'log_stats',
-    metric: 'count_available_mana'
+    strategy: 'diverse'
   }, {
     type: 'play_permanent',
     strategy: 'random'
+  }, {
+    type: 'log_stats',
+    metric: 'count_permanents'
   }
 ]
 
@@ -51,7 +51,7 @@ run({
   deck: buildDeck(deck),
   bot: _clone(bot),
   first: true,
-  games: 20,
+  games: 200,
   concurrency: 1,
   turns: 4,
   onError(e) {
@@ -59,6 +59,7 @@ run({
     process.exit()
   },
   onSuccess(results) {
-    averageResults(results)
+    const averages = averageResults(results)
+    console.log(JSON.stringify(averages, null, 2 ))
   }
 })

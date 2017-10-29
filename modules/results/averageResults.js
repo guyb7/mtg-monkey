@@ -37,5 +37,5 @@ module.exports = function(results) {
       })
     })
   })
-  console.log(JSON.stringify(averages, null, 2 ))
+  return averages
 }
