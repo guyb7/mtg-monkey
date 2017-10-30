@@ -20,6 +20,9 @@ module.exports = function(game) {
 
   const availableMana = getAvailableMana(game)
   lands = _orderBy(lands, [l => {
+    if (!l.colorIdentity) {
+      return 0
+    }
     return availableMana[l.colorIdentity[0].toLowerCase()]
   }])
 

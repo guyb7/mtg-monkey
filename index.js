@@ -9,13 +9,49 @@ const Promise = require('bluebird'),
 const deck = [
   {
     name: 'Mountain',
+    count: 1
+  }, {
+    name: 'Swamp',
     count: 12
   }, {
-    name: 'Plains',
-    count: 12
+    name: 'Aether Hub',
+    count: 4
   }, {
-    name: 'Sky Terror',
-    count: 26
+    name: 'Canyon Slough',
+    count: 2
+  }, {
+    name: 'Dragonskull Summit',
+    count: 4
+  }, {
+    name: 'Dread Wanderer',
+    count: 4
+  }, {
+    name: 'Night Market Lookout',
+    count: 4
+  }, {
+    name: 'Vicious Conquistador',
+    count: 4
+  }, {
+    name: 'Glint-Sleeve Siphoner',
+    count: 4
+  }, {
+    name: 'Scrapheap Scrounger',
+    count: 4
+  }, {
+    name: 'Yahenni, Undying Partisan',
+    count: 3
+  }, {
+    name: 'Fatal Push',
+    count: 4
+  }, {
+    name: 'Lightning Strike',
+    count: 4
+  }, {
+    name: "Bontu's Last Reckoning",
+    count: 1
+  }, {
+    name: 'Aethersphere Harvester',
+    count: 2
   }
 ]
 
@@ -61,5 +97,6 @@ run({
   onSuccess(results) {
     const averages = averageResults(results)
     console.log(JSON.stringify(averages, null, 2 ))
+    console.log(JSON.stringify(results[0].log, null, 2 )) // First game log
   }
 })
